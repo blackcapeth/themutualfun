@@ -121,6 +121,24 @@
   .result-final .score { font-size: 34px; font-weight: 700; margin: 0 0 10px; }
   .result-final p { font-size: 12.5px; color: #6b5a45; margin: 0 0 18px; font-family: -apple-system, Roboto, sans-serif; }
 
+  .portrait-wrap { display: flex; justify-content: center; margin-bottom: 14px; }
+  .portrait-frame {
+    border: 4px double #8a6a3a;
+    border-radius: 4px;
+    padding: 4px;
+    background: #3a2a20;
+  }
+  .portrait-frame svg { display: block; width: 120px; height: 140px; }
+
+  .fundpick button { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .fundpick .swatch { width: 16px; height: 16px; border-radius: 3px; display: block; }
+
+  .stat { position: relative; }
+  .stat svg { width: 18px; height: 18px; margin-bottom: 2px; }
+
+  .coin-row { display: flex; justify-content: center; gap: 4px; margin: 6px 0 2px; }
+  .coin-row svg { width: 16px; height: 16px; }
+
   footer { font-size: 11px; color: #8a7a5f; line-height: 1.6; margin-top: 20px; text-align: center; font-family: -apple-system, Roboto, sans-serif; }
 </style>
 </head>
@@ -134,12 +152,17 @@
   <div id="setup">
     <div class="frame"><div class="frame-inner">
       <h2>Pick your Fund</h2>
+      <div class="portrait-wrap">
+        <div class="portrait-frame">
+          <svg id="portraitSvg" viewBox="0 0 12 14" shape-rendering="crispEdges"></svg>
+        </div>
+      </div>
       <div class="fundpick" id="fundpick">
-        <button data-f="ARGON" class="active">ARGON</button>
-        <button data-f="BOGLE">BOGLE</button>
-        <button data-f="SMAUG">SMAUG</button>
-        <button data-f="MIDAS">MIDAS</button>
-        <button data-f="VLADD">VLADD</button>
+        <button data-f="ARGON" class="active"><span class="swatch" style="background:#6b8fa3;"></span>ARGON</button>
+        <button data-f="BOGLE"><span class="swatch" style="background:#5a8a5a;"></span>BOGLE</button>
+        <button data-f="SMAUG"><span class="swatch" style="background:#a34a3a;"></span>SMAUG</button>
+        <button data-f="MIDAS"><span class="swatch" style="background:#c9a227;"></span>MIDAS</button>
+        <button data-f="VLADD"><span class="swatch" style="background:#8a6ab0;"></span>VLADD</button>
       </div>
       <h2>Enroll — pick a Share Class</h2>
       <div class="classpick" id="classpick">
@@ -156,9 +179,18 @@
 
   <div id="game" style="display:none;">
     <div class="hud">
-      <div class="stat"><p class="l">Book value</p><p class="v" id="hudBook">0</p></div>
-      <div class="stat"><p class="l">Briefcase</p><p class="v" id="hudBriefcase">0</p></div>
-      <div class="stat"><p class="l">Week</p><p class="v" id="hudWeek">1 / 13</p></div>
+      <div class="stat">
+        <svg viewBox="0 0 10 10" shape-rendering="crispEdges"><rect x="1" y="2" width="8" height="6" fill="#6b2338"/><rect x="1" y="2" width="8" height="1" fill="#8a3a4a"/><rect x="4.5" y="2" width="1" height="6" fill="#8a3a4a"/></svg>
+        <p class="l">Book value</p><p class="v" id="hudBook">0</p>
+      </div>
+      <div class="stat">
+        <svg viewBox="0 0 10 10" shape-rendering="crispEdges"><rect x="1" y="4" width="8" height="5" fill="#8a6a3a"/><rect x="3.5" y="2" width="3" height="2" fill="none" stroke="#6b5a3a"/><rect x="1" y="4" width="8" height="1" fill="#c9a227"/></svg>
+        <p class="l">Briefcase</p><p class="v" id="hudBriefcase">0</p>
+      </div>
+      <div class="stat">
+        <svg viewBox="0 0 10 10" shape-rendering="crispEdges"><rect x="1" y="2" width="8" height="7" fill="#f7f0dd" stroke="#6b2338"/><rect x="1" y="2" width="8" height="2" fill="#6b2338"/><rect x="2" y="5" width="2" height="2" fill="#6b2338"/><rect x="6" y="5" width="2" height="2" fill="#6b2338"/></svg>
+        <p class="l">Week</p><p class="v" id="hudWeek">1 / 13</p>
+      </div>
     </div>
     <div class="weekbar"><div class="weekfill" id="weekFill" style="width:0%;"></div></div>
 
@@ -197,6 +229,7 @@
 
   <div id="finalScreen" style="display:none;">
     <div class="result-final">
+      <div class="portrait-wrap"><div class="portrait-frame"><svg id="finalPortraitSvg" viewBox="0 0 12 14" shape-rendering="crispEdges"></svg></div></div>
       <p class="rank" id="rankOut">--</p>
       <p class="score" id="scoreOut">0</p>
       <p>total value delivered to your Seat</p>
@@ -225,13 +258,36 @@ var shareClass = 'C';
 var week, bookValue, briefcase, weight;
 var TOTAL_WEEKS = 13;
 
+var FUND_COLORS = {
+  ARGON: '#6b8fa3',
+  BOGLE: '#5a8a5a',
+  SMAUG: '#a34a3a',
+  MIDAS: '#c9a227',
+  VLADD: '#8a6ab0'
+};
+
+function drawPortrait(color, targetId) {
+  var svg = document.getElementById(targetId || 'portraitSvg');
+  svg.innerHTML =
+    '<rect x="0" y="0" width="12" height="14" fill="#3a2a20"/>' +
+    '<rect x="1" y="9" width="10" height="5" fill="' + color + '"/>' +
+    '<rect x="1" y="9" width="10" height="1" fill="#00000022"/>' +
+    '<rect x="4" y="2" width="4" height="5" fill="#d9b48a"/>' +
+    '<rect x="3.5" y="1.5" width="5" height="1" fill="#3a2a20"/>' +
+    '<rect x="3.5" y="7" width="5" height="2.5" fill="' + color + '"/>' +
+    '<rect x="4.5" y="4" width="1" height="1" fill="#2a1a10"/>' +
+    '<rect x="6.5" y="4" width="1" height="1" fill="#2a1a10"/>';
+}
+
 document.querySelectorAll('#fundpick button').forEach(function(b){
   b.addEventListener('click', function(){
     document.querySelectorAll('#fundpick button').forEach(function(x){ x.classList.remove('active'); });
     this.classList.add('active');
     fund = this.dataset.f;
+    drawPortrait(FUND_COLORS[fund]);
   });
 });
+drawPortrait(FUND_COLORS[fund]);
 document.querySelectorAll('#classpick button').forEach(function(b){
   b.addEventListener('click', function(){
     document.querySelectorAll('#classpick button').forEach(function(x){ x.classList.remove('active'); });
@@ -293,7 +349,9 @@ document.getElementById('submitBtn').addEventListener('click', function(){
     '. ' + (dividend > 0 ? 'Paid ' + fmt(dividend) + ' into your Briefcase.' : 'No profit to distribute this week.') +
     ' Burned ' + fmt(burned * 0.3) + ' in fee income.';
   var box = document.getElementById('resultBox');
-  box.textContent = msg;
+  var coinIcon = '<svg viewBox="0 0 8 8" style="width:14px;height:14px;vertical-align:-2px;" shape-rendering="crispEdges"><rect x="1" y="1" width="6" height="6" fill="#c9a227"/><rect x="2" y="2" width="4" height="4" fill="#e8c94a"/></svg>';
+  var coins = dividend > 0 ? ' ' + coinIcon.repeat(Math.min(5, Math.max(1, Math.ceil(dividend / 40)))) : '';
+  box.innerHTML = msg + coins;
   box.classList.add('show');
 
   bookValue = Math.max(50, bookValue);
@@ -327,6 +385,7 @@ function runContinuationVote() {
 document.getElementById('continueBtn').addEventListener('click', function(){
   document.getElementById('voteScreen').style.display = 'none';
   document.getElementById('finalScreen').style.display = 'block';
+  drawPortrait(FUND_COLORS[fund], 'finalPortraitSvg');
   var total = Math.round(briefcase);
   document.getElementById('scoreOut').textContent = fmt(total);
   var rank;
