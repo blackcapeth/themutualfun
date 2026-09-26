@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Run the Fund — The Mutual Fun</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #efe4cd;
+    color: #3a2a20;
+    font-family: Georgia, "Times New Roman", serif;
+    display: flex;
+    justify-content: center;
+    padding: 26px 14px 60px;
+  }
+  .wrap { max-width: 460px; width: 100%; }
+
+  .frame {
+    border: 3px double #8a6a3a;
+    border-radius: 6px;
+    padding: 3px;
+    margin-bottom: 18px;
+  }
+  .frame-inner { border: 1px solid #8a6a3a; border-radius: 4px; padding: 16px; background: #f7f0dd; }
+
+  h1 {
+    font-size: 21px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #6b2338;
+    letter-spacing: 0.01em;
+  }
+  h2 { font-size: 15px; font-weight: 700; margin: 0 0 10px; color: #6b2338; }
+  p.sub { font-size: 12.5px; color: #6b5a45; margin: 0 0 4px; line-height: 1.55; font-family: -apple-system, Roboto, sans-serif; }
+
+  .fundpick { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .fundpick button {
+    flex: 1 1 30%;
+    background: #f7f0dd;
+    border: 2px solid #c9b48a;
+    border-radius: 8px;
+    padding: 8px 4px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: Georgia, serif;
+  }
+  .fundpick button.active { border-color: #6b2338; color: #6b2338; background: #f1dfe2; }
+
+  .classpick { display: flex; gap: 6px; margin-bottom: 14px; }
+  .classpick button {
+    flex: 1;
+    background: #f7f0dd;
+    border: 2px solid #c9b48a;
+    border-radius: 8px;
+    padding: 9px 2px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .classpick button.active { border-color: #6b2338; color: #6b2338; background: #f1dfe2; }
+  .classnote { font-size: 11.5px; color: #6b5a45; margin: 0 0 16px; font-family: -apple-system, Roboto, sans-serif; }
+
+  button.primary {
+    width: 100%;
+    background: #6b2338;
+    color: #f7f0dd;
+    border: 0;
+    border-radius: 8px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: Georgia, serif;
+    letter-spacing: 0.02em;
+  }
+
+  .hud {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .stat { background: #f7f0dd; border: 1px solid #c9b48a; border-radius: 8px; padding: 8px; text-align: center; }
+  .stat .l { font-size: 10px; color: #6b5a45; margin: 0 0 3px; font-family: -apple-system, Roboto, sans-serif; text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat .v { font-size: 15px; font-weight: 700; margin: 0; color: #6b2338; }
+
+  .weekbar { background: #d9c8a3; border-radius: 5px; height: 8px; margin-bottom: 18px; overflow: hidden; }
+  .weekfill { height: 100%; background: #6b2338; border-radius: 5px; }
+
+  .field { margin-bottom: 16px; }
+  label { display: flex; justify-content: space-between; font-size: 12.5px; color: #4a3a2a; margin-bottom: 6px; font-family: -apple-system, Roboto, sans-serif; }
+  label span.val { color: #6b2338; font-weight: 700; }
+  input[type="range"] { width: 100%; accent-color: #6b2338; }
+  .fieldnote { font-size: 11px; color: #8a7a5f; margin-top: 3px; font-family: -apple-system, Roboto, sans-serif; }
+
+  .result-box {
+    background: #f1e6c9;
+    border-left: 4px solid #6b2338;
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    font-family: -apple-system, Roboto, sans-serif;
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-box b { color: #6b2338; }
+
+  .vote-box { text-align: center; padding: 10px 0; }
+  .vote-box .verdict { font-size: 18px; font-weight: 700; margin: 10px 0 6px; }
+  .vote-box .verdict.pass { color: #3d6b3a; }
+  .vote-box .verdict.fail { color: #a13030; }
+
+  .result-final { background: #f7f0dd; border: 2px solid #6b2338; border-radius: 10px; padding: 24px; text-align: center; }
+  .result-final .rank { font-size: 18px; font-weight: 700; margin: 0 0 6px; color: #6b2338; }
+  .result-final .score { font-size: 34px; font-weight: 700; margin: 0 0 10px; }
+  .result-final p { font-size: 12.5px; color: #6b5a45; margin: 0 0 18px; font-family: -apple-system, Roboto, sans-serif; }
+
+  footer { font-size: 11px; color: #8a7a5f; line-height: 1.6; margin-top: 20px; text-align: center; font-family: -apple-system, Roboto, sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="frame"><div class="frame-inner">
+    <h1>Run the Fund</h1>
+    <p class="sub">Thirteen weeks. One Seat, one Share Class, one Proxy Ballot at a time. Grow the book, or watch the Shareholder Meeting end it.</p>
+  </div></div>
+
+  <div id="setup">
+    <div class="frame"><div class="frame-inner">
+      <h2>Pick your Fund</h2>
+      <div class="fundpick" id="fundpick">
+        <button data-f="ARGON" class="active">ARGON</button>
+        <button data-f="BOGLE">BOGLE</button>
+        <button data-f="SMAUG">SMAUG</button>
+        <button data-f="MIDAS">MIDAS</button>
+        <button data-f="VLADD">VLADD</button>
+      </div>
+      <h2>Enroll — pick a Share Class</h2>
+      <div class="classpick" id="classpick">
+        <button data-c="C" class="active">C</button>
+        <button data-c="B">B</button>
+        <button data-c="A">A</button>
+        <button data-c="I">I</button>
+        <button data-c="R">R</button>
+      </div>
+      <p class="classnote" id="classnote">C: cheapest Front-End Load, base voting weight and dividend share.</p>
+      <button class="primary" id="startBtn">Enroll and take the Seat</button>
+    </div></div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="hud">
+      <div class="stat"><p class="l">Book value</p><p class="v" id="hudBook">0</p></div>
+      <div class="stat"><p class="l">Briefcase</p><p class="v" id="hudBriefcase">0</p></div>
+      <div class="stat"><p class="l">Week</p><p class="v" id="hudWeek">1 / 13</p></div>
+    </div>
+    <div class="weekbar"><div class="weekfill" id="weekFill" style="width:0%;"></div></div>
+
+    <div class="result-box" id="resultBox"></div>
+
+    <div class="frame"><div class="frame-inner">
+      <h2>This week's Proxy Ballot</h2>
+      <div class="field">
+        <label for="risk">Asset allocation — safe ↔ volatile <span class="val" id="riskVal">50%</span></label>
+        <input type="range" min="0" max="100" value="50" step="5" id="risk">
+        <p class="fieldnote">Higher risk widens the range of weekly outcomes, for better or worse.</p>
+      </div>
+      <div class="field">
+        <label for="payout">Profit take — reinvest ↔ pay out <span class="val" id="payoutVal">40%</span></label>
+        <input type="range" min="0" max="100" value="40" step="5" id="payout">
+        <p class="fieldnote">Higher payout fills your Briefcase faster but slows book growth.</p>
+      </div>
+      <div class="field">
+        <label for="expense">Expense ratio — keep ↔ burn <span class="val" id="expenseVal">30%</span></label>
+        <input type="range" min="0" max="100" value="30" step="5" id="expense">
+        <p class="fieldnote">Burning fee income is deflationary but shrinks next week's starting fees.</p>
+      </div>
+      <button class="primary" id="submitBtn">Submit ballot — close Fiscal Friday</button>
+    </div></div>
+  </div>
+
+  <div id="voteScreen" style="display:none;">
+    <div class="frame"><div class="frame-inner vote-box">
+      <h2>Shareholder Meeting</h2>
+      <p class="sub">The Continuation Vote: does the fund go on?</p>
+      <p class="verdict" id="voteVerdict">--</p>
+      <p class="sub" id="voteDetail"></p>
+      <button class="primary" id="continueBtn" style="display:none; margin-top:10px;">See the final tally</button>
+    </div></div>
+  </div>
+
+  <div id="finalScreen" style="display:none;">
+    <div class="result-final">
+      <p class="rank" id="rankOut">--</p>
+      <p class="score" id="scoreOut">0</p>
+      <p>total value delivered to your Seat</p>
+      <button class="primary" id="againBtn">Run another Fund</button>
+    </div>
+  </div>
+
+  <footer>
+    Simplified illustrative simulation, not live protocol data.<br>
+    Unofficial fan game, not affiliated with The Mutual Fun team.<br>
+    Screenshot your final tally.
+  </footer>
+</div>
+
+<script>
+var CLASS_INFO = {
+  C: { cost: 100, weight: 1.0, note: 'C: cheapest Front-End Load, base voting weight and dividend share.' },
+  B: { cost: 180, weight: 1.35, note: 'B: modest load, a real step up in weight.' },
+  A: { cost: 300, weight: 1.7, note: 'A: heavier load, weight growth already slowing per dollar.' },
+  I: { cost: 500, weight: 2.0, note: 'I: institutional load, the diminishing returns are clear here.' },
+  R: { cost: 800, weight: 2.2, note: 'R: the largest load, the smallest extra weight per dollar spent.' }
+};
+
+var fund = 'ARGON';
+var shareClass = 'C';
+var week, bookValue, briefcase, weight;
+var TOTAL_WEEKS = 13;
+
+document.querySelectorAll('#fundpick button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#fundpick button').forEach(function(x){ x.classList.remove('active'); });
+    this.classList.add('active');
+    fund = this.dataset.f;
+  });
+});
+document.querySelectorAll('#classpick button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#classpick button').forEach(function(x){ x.classList.remove('active'); });
+    this.classList.add('active');
+    shareClass = this.dataset.c;
+    document.getElementById('classnote').textContent = CLASS_INFO[shareClass].note;
+  });
+});
+
+function fmt(n) { return Math.round(n).toLocaleString(); }
+
+function updateHud() {
+  document.getElementById('hudBook').textContent = fmt(bookValue);
+  document.getElementById('hudBriefcase').textContent = fmt(briefcase);
+  document.getElementById('hudWeek').textContent = week + ' / ' + TOTAL_WEEKS;
+  document.getElementById('weekFill').style.width = Math.round((week - 1) / TOTAL_WEEKS * 100) + '%';
+}
+
+document.getElementById('startBtn').addEventListener('click', function(){
+  var info = CLASS_INFO[shareClass];
+  weight = info.weight;
+  bookValue = 1000 - info.cost * 0.5;
+  briefcase = 0;
+  week = 1;
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+  updateHud();
+});
+
+['risk','payout','expense'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', function(){
+    document.getElementById(id + 'Val').textContent = this.value + '%';
+  });
+});
+
+document.getElementById('submitBtn').addEventListener('click', function(){
+  var risk = parseInt(document.getElementById('risk').value) / 100;
+  var payout = parseInt(document.getElementById('payout').value) / 100;
+  var expense = parseInt(document.getElementById('expense').value) / 100;
+
+  var variance = 0.03 + risk * 0.16;
+  var drift = 0.01 + risk * 0.01;
+  var ret = (Math.random() * 2 - 1) * variance + drift * (Math.random() < 0.55 ? 1 : -0.6);
+  var gain = bookValue * ret;
+  bookValue += gain;
+
+  var dividend = 0;
+  if (gain > 0) {
+    dividend = gain * payout * weight;
+    bookValue -= gain * payout;
+    briefcase += dividend;
+  }
+
+  var feePool = bookValue * 0.01;
+  var burned = feePool * expense;
+  bookValue -= burned * 0.3;
+
+  var msg = 'Week ' + week + ': ' + (gain >= 0 ? 'gains of ' : 'losses of ') + fmt(Math.abs(gain)) +
+    '. ' + (dividend > 0 ? 'Paid ' + fmt(dividend) + ' into your Briefcase.' : 'No profit to distribute this week.') +
+    ' Burned ' + fmt(burned * 0.3) + ' in fee income.';
+  var box = document.getElementById('resultBox');
+  box.textContent = msg;
+  box.classList.add('show');
+
+  bookValue = Math.max(50, bookValue);
+  week++;
+  updateHud();
+
+  if (week > TOTAL_WEEKS) {
+    setTimeout(runContinuationVote, 900);
+  }
+});
+
+function runContinuationVote() {
+  document.getElementById('game').style.display = 'none';
+  document.getElementById('voteScreen').style.display = 'block';
+  var passChance = bookValue >= 1000 ? 0.9 : (bookValue >= 700 ? 0.6 : 0.25);
+  var passed = Math.random() < passChance;
+  var verdict = document.getElementById('voteVerdict');
+  verdict.textContent = passed ? 'The fund goes on.' : 'The fund is dissolved.';
+  verdict.className = 'verdict ' + (passed ? 'pass' : 'fail');
+  document.getElementById('voteDetail').textContent = passed
+    ? 'Enrolled weight voted to continue. Final dividends are being swept to your Briefcase.'
+    : 'Enrolled weight voted to close the book. Remaining value is being swept to your Briefcase.';
+  if (!passed) {
+    briefcase += bookValue * 0.7;
+  } else {
+    briefcase += bookValue * 0.15;
+  }
+  document.getElementById('continueBtn').style.display = 'inline-block';
+}
+
+document.getElementById('continueBtn').addEventListener('click', function(){
+  document.getElementById('voteScreen').style.display = 'none';
+  document.getElementById('finalScreen').style.display = 'block';
+  var total = Math.round(briefcase);
+  document.getElementById('scoreOut').textContent = fmt(total);
+  var rank;
+  if (total < 400) rank = 'Junior Analyst';
+  else if (total < 900) rank = 'Portfolio Manager';
+  else if (total < 1600) rank = 'Corner Office';
+  else rank = 'Fund Chairman';
+  document.getElementById('rankOut').textContent = rank;
+});
+
+document.getElementById('againBtn').addEventListener('click', function(){
+  document.getElementById('finalScreen').style.display = 'none';
+  document.getElementById('resultBox').classList.remove('show');
+  document.getElementById('setup').style.display = 'block';
+});
+</script>
+</body>
+</html>
